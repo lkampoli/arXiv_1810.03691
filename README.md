@@ -1,4 +1,14 @@
-Data can be loaded at the following adress : "blabla@cerfacs.fr"
+# HOW TO
 
-To train the model, run "python unet.py"
-To try to predict a new field, run "python prediction.py"
+To use:
+
+
+ 1. Download data at "https://cerfacs.fr/opendata/documents/DATA.tgz"
+ 2. Create python3.6 virtual environment
+ 3. Once in :
+ 
+```
+$ pip install -r requirements.txt
+$ python CNN.py
+$ python prediction.py
+```
