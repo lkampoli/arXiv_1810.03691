@@ -21,7 +21,7 @@ from glob import glob
 
 
 
-def true_integrale(field, factor=1):#Integrate for the center of each cell
+def true_integral(field, factor=1):#Integral for the center of each cell
     x, y, z = field.shape
     if (x==1):
         new_field = np.zeros((x, y-1, z-1))
@@ -55,7 +55,7 @@ def grad_n(arr, spacing=1):
 
 
 
-def CNN_predict(choosen_num, model):
+def CNN_predict(distrib, model):
 
     deraf = 8
     size_block = 16
@@ -79,7 +79,8 @@ def CNN_predict(choosen_num, model):
 
     for num in range (nbr_pred):
 
-        liste_name = sorted(glob("DATA/*.h5"))
+        liste_name = sorted(glob("DATA/" + distrib + "*.h5"))
+        choosen_num = np.random.randint(len(liste_name))
         my_file = h5py.File(liste_name[choosen_num], 'r');
 
         passive = my_file['filt_' + str(deraf)].value
@@ -104,9 +105,9 @@ def CNN_predict(choosen_num, model):
 
     for i in range(nbr_pred):
         for k in range(div):
-            surface_LES[i, k] =  grad_lam * true_integrale(liste_LES[i, (k * dim_x//div):((k+1) * dim_x//div)], 8)
-            surface_pred[i, k] = grad_lam * true_integrale(predictions[i, (k * dim_x//div):((k+1) * dim_x//div), :, :, 0], 8)
-            surface_real[i, k] = grad_lam * true_integrale(liste_target[i, (k * dim_x//div):((k+1) * dim_x//div)], 8)
+            surface_LES[i, k] =  grad_lam * true_integral(liste_LES[i, (k * dim_x//div):((k+1) * dim_x//div)], 8)
+            surface_pred[i, k] = grad_lam * true_integral(predictions[i, (k * dim_x//div):((k+1) * dim_x//div), :, :, 0], 8)
+            surface_real[i, k] = grad_lam * true_integral(liste_target[i, (k * dim_x//div):((k+1) * dim_x//div)], 8)
             mse[i, k] = np.mean( (predictions[i, (k * dim_x//div):((k+1) * dim_x//div), :, :, 0] - liste_target[i, (k * dim_x//div):((k+1) * dim_x//div)]) ** 2)
     
     adim_surface = 0.0256*2*deraf*0.0001 #mesh : 256 points of size 0.0001 meter
@@ -145,12 +146,9 @@ if __name__ == "__main__":
     best_model = name_models[-1]
     print (name_models)
     print (best_model)
-    #model = load_model('save_model/unet_153_with_loss_0.0037.h5')#load the best model
-    model = load_model(best_model)#load the best model
+    model = load_model(best_model)#Load the model with the lowest loss
 
-    name = np.random.randint(100, 110)#Random field choosen, never seen during the training
-
-    surface_LES, surface_real, surface_pred = CNN_predict(name, model)
+    surface_LES, surface_real, surface_pred = CNN_predict("DNS3", model) #Prediction on a field never seen during the training
     
     plot_results(surface_LES, surface_real, surface_pred)
     
