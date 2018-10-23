@@ -12,3 +12,5 @@ $ pip install -r requirements.txt
 $ python CNN.py
 $ python prediction.py
 ```
+
+If needed, a trained model can be donwloaded at "https://cerfacs.fr/opendata/documents/Trained_CNN_TCE.tgz"
