@@ -52,7 +52,7 @@ def pad_fields(passive, target, adim, size_block_x, size_block_yz):
     return(padded_passive, padded_target)
 
     
-def generator_3D(distrib, size_num, rotate, flip): #valid_or_train= 1 for validation, 2 for train
+def generator_3D(begin_distrib, end_distrib, size_num, rotate, flip): #valid_or_train= 1 for validation, 2 for train
     while 1:
 
         crops_per_block = 10
@@ -63,8 +63,9 @@ def generator_3D(distrib, size_num, rotate, flip): #valid_or_train= 1 for valida
         
         for num in range (size_num):
             
-            liste_name = sorted(glob("DATA/" + distrib + "*.h5"))
-            choosen_num = np.random.randint(len(liste_name))
+            num_DNS = np.random.randint(1, 3)#DNS 1 or 2 
+            liste_name = sorted(glob("DATA/DNS" + str(num_DNS) + "*.h5"))
+            choosen_num = np.random.randint(begin_distrib, end_distrib)
             my_file = h5py.File(liste_name[choosen_num], 'r')
             passive = my_file['filt_8'].value
             target = my_file['filt_grad_8'].value
@@ -164,8 +165,8 @@ def scheduler(epoch):
 if __name__ == "__main__":
 
 
-    train_generator = generator_3D("DNS1", 4, True, True)#From the first distribution
-    valid_generator = generator_3D("DNS2", 1, False, False)#From the second distribution
+    train_generator = generator_3D(1, 41, 4, True, True)#first 40 fields for training cf paper
+    valid_generator = generator_3D(41, 51, 1, False, False)#Last 10 for validation
 
     model=CNN()
     new_Adam = optimizers.Adam(lr=initial_LR, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
